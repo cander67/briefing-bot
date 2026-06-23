@@ -1,0 +1,53 @@
+briefing:
+  name: daily_ap_news
+  timezone: America/Los_Angeles
+  max_total_stories: 10
+  language: en
+
+sources:
+  apnews:
+    allowed_domains:
+      - apnews.com
+    sections:
+      us:
+        section_urls:
+          - https://apnews.com/us-news
+        max_stories: 5
+        topic_description: Major United States news stories from AP News.
+      world:
+        section_urls:
+          - https://apnews.com/world-news
+        max_stories: 5
+        topic_description: Major international news stories from AP News.
+    require_allowed_domain: true
+    require_publication_date: true
+    reject_if_older_than_hours: 36
+    reject_non_article_pages: true
+
+extraction:
+  provider: firecrawl
+  use_search_fallback: false
+  use_section_page_discovery: true
+  max_candidate_urls_per_section: 12
+  max_extract_chars_per_article: 12000
+  timeout_seconds: 45
+  retries: 2
+
+llm:
+  model: gpt-5-nano
+  fallback_model: gpt-5.4-nano
+  relevance_threshold: 0.70
+  require_source_grounding: true
+  forbid_unsourced_claims: true
+
+output:
+  output_dir: ${BRIEFING_OUTPUT_DIR:-./outputs}
+  save_raw_extracts: true
+  raw_extract_retention_days: 2
+  briefing_retention_days: 5
+
+email:
+  enabled: true
+  fixed_recipient_list: true
+  subject_template: "Daily AP News Briefing — {date}"
+  recipients_file: ${BRIEFING_OUTPUT_DIR:-./outputs}/../config/recipients.yaml

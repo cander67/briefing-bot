@@ -1,0 +1,4 @@
+retention:
+  briefing_retention_days: 5
+  raw_extract_retention_days: 2
+  keep_logs_days: 14

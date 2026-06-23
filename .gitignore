@@ -1,0 +1,42 @@
+# Python bytecode (compiled Python files)
+__pycache__/
+*.py[cod]
+*.so
+
+# Distribution/packaging
+*.egg-info/
+dist/
+wheels/
+build/
+
+# Virtual environments (huge, recreatable)
+venv/
+.venv/
+env/
+
+# Secrets / environment
+.env
+*.env
+!.env.example
+
+# Testing artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE settings (personal preferences)
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Newsbot generated artifacts (recreated at runtime)
+outputs/
+logs/
+cache/
+
+# Personal recipient list (commit recipients.example.yaml instead)
+config/recipients.yaml

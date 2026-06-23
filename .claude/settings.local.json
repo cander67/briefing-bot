@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv sync *)",
+      "Bash(uv run *)",
+      "Bash(git add *)",
+      "Bash(grep -E \"\\(^|/\\)\\\\.env$|recipients\\\\.yaml$|^outputs/|^logs/|^cache/|\\\\.venv/\")",
+      "Bash(git grep *)"
+    ]
+  }
+}

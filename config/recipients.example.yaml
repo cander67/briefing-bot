@@ -1,0 +1,5 @@
+recipients:
+  to:
+    - "you@example.com"
+  cc: []
+  bcc: []
