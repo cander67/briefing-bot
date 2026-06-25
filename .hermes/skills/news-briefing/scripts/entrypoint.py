@@ -30,9 +30,9 @@ def main() -> int:
                         help="Force re-run even if briefing already exists (passed to pipeline)")
     args = parser.parse_args()
 
-    # Project root defaults to ~/hermes-newsbot; override with NEWSBOT_HOME
+    # Project root defaults to ~/briefing-bot; override with BRIEFING_BOT_HOME
     # when the repo is cloned elsewhere.
-    project_root = Path(os.environ.get("NEWSBOT_HOME", Path.home() / "hermes-newsbot"))
+    project_root = Path(os.environ.get("BRIEFING_BOT_HOME", Path.home() / "briefing-bot"))
     script = project_root / "scripts" / "run_daily_briefing.py"
     config = project_root / "config" / "daily_ap.yaml"
     output_root = project_root / "outputs"
