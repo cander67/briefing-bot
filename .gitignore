@@ -27,7 +27,7 @@ htmlcov/
 # IDE settings (personal preferences)
 .vscode/
 .idea/
-.notes
+notes.*
 *.swp
 
 # OS files
