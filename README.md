@@ -1,8 +1,14 @@
-# hermes-newsbot
+# Briefing Bot
 
-A daily news briefing bot. It discovers articles from configured sources (currently AP News), extracts their content, uses an LLM to filter and rank them for relevance, summarizes the selected stories, renders a briefing, and emails it to a fixed recipient list.
+This project is an example of a tool for creating a recurring briefing on a set of configured sources and delivering it to a fixed recipient list. Current awareness, daily digest, and other focused briefings are common in many organizations. This project implements such a briefing using Python scripts, an extraction API ([Firecrawl](https://firecrawl.dev)), an LLM for determining article relevance, ranking, and summarization ([OpenAI GPT-5 nano](https://developers.openai.com/api/docs/models/gpt-5-nano)), and email delivery. Helper scripts are included for cron scheduling, cleanup of old outputs, and running the pipeline as a Hermes skill if you wish to have your agent tailor the briefing to your needs. Strategies for tuning the briefing are included in the documentation below. The current implementation is a daily US and World news briefing, but the pipeline is designed to be source-flexible and could be adapted to other sources or topics.
 
-> This README is a starting point and will evolve as the project develops.
+My personal motivation for this project was to build a tool that would provide daily US and World news updates by email to keep me from scrolling the NYT. The approach was inspired by the [Hermes daily briefing bot](https://hermes-agent.nousresearch.com/docs/guides/daily-briefing-bot), but became a standalone implementation that does not require Hermes. I found that prompting the Hermes agent to focus on specific news sources was not reliable because the agent had too much information to sort through in a timely, cost-effective manner, and I wanted a more deterministic pipeline that could be tuned to my needs. This project is the result.
+
+The current implementation is best suited for sources that have frequent updates, and a clear section structure. The pipeline is tuned for news content, but could be adapted for other types of content (e.g., blogs, forums, or social media). Sources with less frequent updates or less structured content might need additional customization or use of page monitoring. Briefings are generated in Markdown and plain text, but the pipeline could be adapted to produce other formats (e.g., HTML, PDF) if desired.
+
+This project is a personal project for individual use.
+
+> Version 1.0.0 (2026-06-25)
 
 ## How it works
 
@@ -35,13 +41,13 @@ The pipeline runs as a sequence of phases, each writing its output as JSON into 
 1. Clone and install dependencies:
 
    ```bash
-   git clone <repo-url> hermes-newsbot && cd hermes-newsbot
+   git clone <repo-url> briefing-bot && cd briefing-bot
 
    # With uv (recommended) — creates .venv from the lockfile
    uv sync
 
    # Or with conda
-   conda create -n newsbot python=3.11 && conda activate newsbot && pip install -r requirements.txt
+   conda create -n briefing-bot python=3.11 && conda activate briefing-bot && pip install -r requirements.txt
 
    # Or with standard venv
    python -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
@@ -70,7 +76,7 @@ The pipeline runs as a sequence of phases, each writing its output as JSON into 
 > **Paths are relative.** All paths come from `--config` and the cwd-relative
 > `output_dir`, so the only environment-specific step is creating the venv. The
 > cron scripts auto-detect the repo root. If you run the Hermes skill from a
-> clone that isn't at `~/hermes-newsbot`, set `NEWSBOT_HOME=/path/to/repo`.
+> clone that isn't at `~/briefing-bot`, set `BRIEFING_BOT_HOME=/path/to/repo`.
 
 ## Running
 
@@ -81,14 +87,14 @@ The pipeline can run locally (on-demand or cron), or as a Hermes skill (on-deman
 With uv, prefix commands with `uv run` (shown below). With conda/venv, activate the environment and drop the prefix.
 
 ```bash
+# Full pipeline and send the email
+uv run scripts/run_daily_briefing.py --config config/daily_ap.yaml --phase full --send
+
 # Dry run — no LLM calls, no email, placeholder data (good for a smoke test)
 uv run scripts/run_daily_briefing.py --config config/daily_ap.yaml --dry-run
 
 # Full pipeline, no email
 uv run scripts/run_daily_briefing.py --config config/daily_ap.yaml --phase full
-
-# Full pipeline and send the email
-uv run scripts/run_daily_briefing.py --config config/daily_ap.yaml --phase full --send
 
 # Single phase: discover | extract | evaluate | summarize | render | send | full
 uv run scripts/run_daily_briefing.py --config config/daily_ap.yaml --phase extract
@@ -98,10 +104,10 @@ Each run writes its outputs and a `run_log.json` to `outputs/<today>/`. Individu
 
 #### Conserving Firecrawl credits during development
 
-Firecrawl is billed per scrape. Two ways to keep development cheap:
+Firecrawl is billed per extraction. Two ways to keep development cheap:
 
 - **`--dry-run`** — makes **zero** real API calls and uses mock article content. Best for testing the pipeline plumbing end-to-end.
-- **`--max-extractions N`** — runs the **real** pipeline but caps Firecrawl to at most `N` scrape calls (and disables retries so the bound is hard). Use when you need to see real extraction output cheaply:
+- **`--max-extractions N`** — runs the **real** pipeline but caps Firecrawl to at most `N` extraction calls (and disables retries so the bound is hard). Use when you need to see real extraction output cheaply:
 
   ```bash
   uv run scripts/run_daily_briefing.py --config config/daily_ap.yaml --phase full --max-extractions 2
@@ -204,10 +210,11 @@ The tone, priorities, and structure of the output are driven by the prompt templ
 The project uses [uv](https://docs.astral.sh/uv/) for dependency management and ships with linting, type checking, and tests. Data models are validated with [Pydantic](https://docs.pydantic.dev/) (the four pipeline stages) and config is validated on load, so a malformed `daily_ap.yaml` fails fast with a clear error.
 
 ```bash
-uv sync --dev          # install dependencies (including dev tools)
-uv run ruff check scripts/ tests/   # lint
-uv run mypy scripts/                # type check
-uv run pytest                       # run the test suite (excludes live tests)
+uv sync --dev                                       # install dependencies (including dev tools)
+uv run ruff check scripts/ tests/                   # lint
+uv run mypy scripts/                                # type check
+uv run pytest                                       # run the test suite (excludes live tests)
+uv run pytest --cov=scripts --cov-report=html       # run with coverage report
 ```
 
 Tests live under `tests/` (`unit/`, `integration/`, `e2e/`) and mock all external calls (Firecrawl, OpenAI, SMTP), so the suite is fast, free, and deterministic. One opt-in smoke test hits the real Firecrawl API:
@@ -228,14 +235,9 @@ CI runs lint, type check, and tests on every push and pull request (see `.github
 - **Prompts** — adjust LLM behavior by editing the templates in `prompts/`.
 - **Failure alerts** — a plain-text alert email is sent to the recipients in `config/recipients.yaml` (same SMTP settings as the briefing) in three cases: the run crashes with an unhandled error, it completes but produces no articles, or the briefing email itself fails to send.
 
-## Notes / TODO
-
-- `.env` and `config/recipients.yaml` hold personal data and are gitignored — commit `config/recipients.example.yaml` instead. Keep secrets out of git history.
-- The Hermes skill lives in the repo at `.hermes/skills/news-briefing/` and is symlinked to `~/.hermes/profiles/default/skills/`.
-
 ## Disclaimer
 
-This is a personal project for fetching and summarizing publicly available news for individual use. Article content is retrieved from AP News and is subject to the [AP Terms of Use](https://www.ap.org/about/terms-of-use/) — respect their terms, rate limits, and copyright. Do not use this to redistribute AP content publicly. Summaries are LLM-generated and may contain errors; verify against the linked source before relying on them.
+This is a personal project for fetching and summarizing publicly available information for individual use. Respect the terms, rate limits, and copyright of your sources. Do not use this to redistribute source content publicly. Summaries are LLM-generated and may contain errors; verify against the linked source before relying on them.
 
 ## License
 
