@@ -5,7 +5,6 @@ from __future__ import annotations
 import builtins
 
 import httpx
-
 from extract_articles import ExtractedArticle, FirecrawlExtractor
 
 FIRECRAWL_OK = {

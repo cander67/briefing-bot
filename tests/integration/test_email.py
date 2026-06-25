@@ -10,8 +10,10 @@ from send_briefing_email import (
     _send_email,
     load_config,
     load_recipients,
-    send_briefing_email as send_daily_briefing_email,
     send_failure_alert,
+)
+from send_briefing_email import (
+    send_briefing_email as send_daily_briefing_email,
 )
 
 

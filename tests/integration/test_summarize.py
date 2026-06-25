@@ -5,7 +5,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-
 from summarize_articles import LLMSummarizer, SummarizedArticle
 
 PROMPT = Path(__file__).resolve().parent.parent.parent / "prompts" / "article_summarizer.md"

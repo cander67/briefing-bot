@@ -7,9 +7,8 @@ import sys
 import types
 from pathlib import Path
 
-import pytest
-
 import evaluate_articles
+import pytest
 from evaluate_articles import LLMEvaluator
 
 PROMPT = Path(__file__).resolve().parent.parent.parent / "prompts" / "relevance_evaluator.md"

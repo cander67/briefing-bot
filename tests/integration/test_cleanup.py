@@ -3,13 +3,11 @@
 from __future__ import annotations
 
 import os
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import pytest
-
 import cleanup_outputs
-from datetime import datetime, timedelta, timezone
-
+import pytest
 from cleanup_outputs import cleanup_outputs as run_cleanup
 
 RETENTION = {"retention": {"briefing_retention_days": 5, "raw_extract_retention_days": 2, "keep_logs_days": 14}}
