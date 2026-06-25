@@ -32,3 +32,18 @@ class TestMarkdownToHtml:
     def test_heading_becomes_tag(self):
         out = markdown_to_html("# Daily Briefing")
         assert "<h1>" in out and "Daily Briefing" in out
+
+    def test_secondary_headings_become_tags(self):
+        out = markdown_to_html("## Section\n### Item")
+        assert "<h2>Section</h2>" in out
+        assert "<h3>Item</h3>" in out
+
+    def test_bold_block_and_inline_are_rendered(self):
+        out = markdown_to_html("**Lead**\n**Lead:** detail")
+        assert "<p><strong>Lead</strong></p>" in out
+        assert "<p><strong>Lead:</strong> detail</p>" in out
+
+    def test_horizontal_rule_and_blank_lines_are_ignored(self):
+        out = markdown_to_html("---\n\nParagraph")
+        assert "<p>---</p>" not in out
+        assert "<p>Paragraph</p>" in out
