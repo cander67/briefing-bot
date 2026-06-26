@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/cander67/briefing-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/cander67/briefing-bot/actions/workflows/ci.yml)
 
-This project is an example of a tool for creating a recurring briefing on a set of configured sources and delivering it to a fixed recipient list. Current awareness, daily digest, and other focused briefings are common in many organizations. This project implements such a briefing using Python scripts, an extraction API ([Firecrawl](https://firecrawl.dev)), an LLM for determining article relevance, ranking, and summarization ([OpenAI GPT-5 nano](https://developers.openai.com/api/docs/models/gpt-5-nano)), and email delivery. Helper scripts are included for cron scheduling, cleanup of old outputs, and running the pipeline as a Hermes skill if you wish to have your agent tailor the briefing to your needs. Strategies for tuning the briefing are included in the documentation below. The current implementation is a daily US and World news briefing, but the pipeline is designed to be source-flexible and could be adapted to other sources or topics.
+Current awareness, daily digest, and other focused briefings are common in many organizations to keep teams informed of important developments. This project is an example of a tool for creating a recurring briefing from a set of configured sources and delivering it to a fixed recipient list. The briefing system is implemented using Python scripts, an extraction API ([Firecrawl](https://firecrawl.dev)), an LLM for determining article relevance, ranking, and summarization ([OpenAI GPT-5 nano](https://developers.openai.com/api/docs/models/gpt-5-nano)), and email delivery. Helper scripts are included for cron scheduling, cleanup of old outputs, and running the pipeline as a Hermes skill if you wish to have your agent tailor the briefing to your needs. Strategies for tuning the briefing are included in the documentation below. The current implementation is a daily US and World news briefing, but the pipeline is designed to be source-flexible and could be adapted to other sources or topics.
 
 Sample output from a run is included here for [markdown](https://github.com/cander67/briefing-bot/blob/main/sample_outputs/briefing.md) and here for [text](https://github.com/cander67/briefing-bot/blob/main/sample_outputs/email_body.txt).
 
-My personal motivation for this project was to build a tool that would provide daily US and World news updates by email to keep me from scrolling the NYT. The goal was to provide more depth than simple news aggregators or daily news source teaser emails and be more intentional than an algorithmic feed. The approach was inspired by the [Hermes daily briefing bot](https://hermes-agent.nousresearch.com/docs/guides/daily-briefing-bot), but became a standalone implementation that does not require Hermes. I found that prompting the Hermes agent to focus on specific news sources was not reliable because the agent had too much information to sort through in a timely, cost-effective manner, and I wanted a more deterministic pipeline that could be tuned to my needs. This project is the result.
+My personal motivation for this project was to build a tool that would provide daily US and World news updates by email as an alternative to scrolling the NYT. The goal was to provide more depth than simple news aggregators or daily news source teaser emails and be more intentional than an algorithmic feed. The approach was inspired by the [Hermes daily briefing bot](https://hermes-agent.nousresearch.com/docs/guides/daily-briefing-bot), but became a standalone implementation that does not require Hermes. I found that prompting the Hermes agent to focus on specific news sources was not reliable because the agent had too much information to sort through in a timely, cost-effective manner, and I wanted a more deterministic pipeline that could be tuned to my needs. This project is the result.
 
 The current implementation is best suited for sources that have frequent updates, and a clear section structure. The pipeline is tuned for news content, but could be adapted for other types of content (e.g., industry/trade publications, blogs, forums, or social media). Sources with less frequent updates or less structured content might benefit from additional customization or use of page monitoring. Briefings are generated in Markdown and plain text, but the pipeline could be adapted to produce other formats (e.g., HTML, PDF) if desired.
 
@@ -64,8 +64,8 @@ The pipeline runs as a sequence of phases, each writing its output as JSON into 
    ```
 
    Required keys:
-   - `FIRECRAWL_API_KEY` — article extraction.
-   - `OPENAI_API_KEY` — LLM evaluation and summarization.
+   - `FIRECRAWL_API_KEY` — article extraction. Free and paid tiers available at [Firecrawl](https://firecrawl.dev).
+   - `OPENAI_API_KEY` — LLM evaluation and summarization. Pricing available at [OpenAI](https://platform.openai.com/).
    - `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` — email sending.
 
 3. Set up your recipient list and review config:
@@ -241,7 +241,7 @@ CI runs lint, type check, and tests on every push and pull request (see `.github
 
 ## Disclaimer
 
-This is a personal project for fetching and summarizing publicly available information for individual use. Respect the terms, rate limits, and copyright of your sources. Do not use this to redistribute source content publicly. Summaries are LLM-generated and may contain errors; verify against the linked source before relying on them.
+This is a personal project for fetching and summarizing publicly available information for individual use. Respect the terms, rate limits, and copyright of your sources. Summaries are LLM-generated and may contain errors; verify against the linked source before relying on them.
 
 ## License
 
